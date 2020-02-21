@@ -30,6 +30,9 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.util.Log;
 
+import static org.eclipse.paho.android.service.MqttServiceConstantsKt.PING_SENDER;
+import static org.eclipse.paho.android.service.MqttServiceConstantsKt.PING_WAKELOCK;
+
 /**
  * Default ping sender implementation on Android. It is based on AlarmManager.
  *
@@ -68,8 +71,7 @@ class AlarmPingSender implements MqttPingSender {
 
 	@Override
 	public void start() {
-		String action = MqttServiceConstants.PING_SENDER
-				+ comms.getClient().getClientId();
+		String action = PING_SENDER + comms.getClient().getClientId();
 		Log.d(TAG, "Register alarmreceiver to MqttService"+ action);
 		service.registerReceiver(alarmReceiver, new IntentFilter(action));
 
@@ -111,11 +113,11 @@ class AlarmPingSender implements MqttPingSender {
         if(Build.VERSION.SDK_INT >= 23){
 			// In SDK 23 and above, dosing will prevent setExact, setExactAndAllowWhileIdle will force
 			// the device to run this task whilst dosing.
-			Log.d(TAG, "Alarm scheule using setExactAndAllowWhileIdle, next: " + delayInMilliseconds);
+			Log.d(TAG, "Alarm schedule using setExactAndAllowWhileIdle, next: " + delayInMilliseconds);
 			alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, nextAlarmInMilliseconds,
 					pendingIntent);
 		} else if (Build.VERSION.SDK_INT >= 19) {
-			Log.d(TAG, "Alarm scheule using setExact, delay: " + delayInMilliseconds);
+			Log.d(TAG, "Alarm schedule using setExact, delay: " + delayInMilliseconds);
 			alarmManager.setExact(AlarmManager.RTC_WAKEUP, nextAlarmInMilliseconds,
 					pendingIntent);
 		} else {
@@ -129,8 +131,7 @@ class AlarmPingSender implements MqttPingSender {
 	 */
 	class AlarmReceiver extends BroadcastReceiver {
 		private WakeLock wakelock;
-		private final String wakeLockTag = MqttServiceConstants.PING_WAKELOCK
-				+ that.comms.getClient().getClientId();
+		private final String wakeLockTag = PING_WAKELOCK + that.comms.getClient().getClientId();
 
 		@Override
         @SuppressLint("Wakelock")
