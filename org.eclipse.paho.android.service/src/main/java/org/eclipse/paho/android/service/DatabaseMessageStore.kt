@@ -277,15 +277,10 @@ internal class DatabaseMessageStore
                 db = mqttDb!!.writableDatabase
                 // anonymous initialiser to start a suitable query
                 // and position at the first row, if one exists
-                if (clientHandle == null) {
-                    c = db!!.query(ARRIVED_MESSAGE_TABLE_NAME, null, null, null, null, null,
-                            "mtimestamp ASC")
-                } else {
-                    c = db!!.query(ARRIVED_MESSAGE_TABLE_NAME, null,
-                            "$CLIENT_HANDLE=?",
-                            selectionArgs, null, null,
-                            "mtimestamp ASC")
-                }
+                c = db!!.query(ARRIVED_MESSAGE_TABLE_NAME, null,
+                        "$CLIENT_HANDLE=?",
+                        selectionArgs, null, null,
+                        "mtimestamp ASC")
                 hasNext = c!!.moveToFirst()
             }
 
@@ -339,15 +334,11 @@ internal class DatabaseMessageStore
         selectionArgs[0] = clientHandle
 
         var rows = 0
-        if (clientHandle == null) {
-            traceHandler.traceDebug(TAG,
-                    "clearArrivedMessages: clearing the table")
-            rows = db!!.delete(ARRIVED_MESSAGE_TABLE_NAME, null, null)
-        } else {
+        rows = run {
             traceHandler.traceDebug(TAG,
                     "clearArrivedMessages: clearing the table of "
                             + clientHandle + " messages")
-            rows = db!!.delete(ARRIVED_MESSAGE_TABLE_NAME,
+            db!!.delete(ARRIVED_MESSAGE_TABLE_NAME,
                     "$CLIENT_HANDLE=?",
                     selectionArgs)
 
