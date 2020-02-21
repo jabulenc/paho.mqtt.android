@@ -1,12 +1,10 @@
 apply plugin: 'com.android.library'
+
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
-
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 29
-
-        testApplicationId "org.eclipse.paho.android.service.test"
     }
     buildTypes {
         release {
@@ -14,7 +12,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
     dexOptions {
         preDexLibraries = false
     }
@@ -24,12 +21,8 @@ android {
     }
 }
 
-repositories {
-    maven { url rootProject.ext.mavenUrl }
-}
-
 dependencies {
-    compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
-    compile "com.android.support:support-v4:${rootProject.ext.supportLibVersion}"
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "org.eclipse.paho:org.eclipse.paho.client.mqttv3:${rootProject.ext.clientVersion}"
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
 }

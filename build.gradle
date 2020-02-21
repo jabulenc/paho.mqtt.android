@@ -19,20 +19,10 @@ buildscript {
 ext{
 
     compileSdkVersion = 29
-    buildToolsVersion = '23.0.3'
-
-
     group = 'org.eclipse.paho'
-
     serviceArchivesBaseName = 'org.eclipse.paho.android.service'
-    serviceVersion = '1.1.1'
-
+    serviceVersion = '1.2.2'
     clientVersion = '1.2.2'
-
-    mavenUrl = "https://repo.eclipse.org/content/repositories/paho-releases/"
-
-    supportLibVersion = '24.2.1'
-
 }
 allprojects {
 
