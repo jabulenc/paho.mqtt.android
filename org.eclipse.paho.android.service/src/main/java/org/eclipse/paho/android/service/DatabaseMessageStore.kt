@@ -77,7 +77,7 @@ internal class DatabaseMessageStore
                     + RETAINED + " TEXT, "
                     + DUPLICATE + " TEXT, " + MTIMESTAMP
                     + " INTEGER" + ");")
-            traceHandler!!.traceDebug(TAG, "onCreate {"
+            traceHandler.traceDebug(TAG, "onCreate {"
                     + createArrivedTableStatement + "}")
             try {
                 database.execSQL(createArrivedTableStatement)
@@ -101,7 +101,7 @@ internal class DatabaseMessageStore
          */
 
         override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-            traceHandler!!.traceDebug(TAG, "onUpgrade")
+            traceHandler.traceDebug(TAG, "onUpgrade")
             try {
                 db.execSQL("DROP TABLE IF EXISTS $ARRIVED_MESSAGE_TABLE_NAME")
             } catch (e: SQLException) {
@@ -134,7 +134,7 @@ internal class DatabaseMessageStore
         // could/should be done in another thread, but as the
         // database is only one table, I doubt it matters...
 
-        traceHandler!!.traceDebug(TAG, "DatabaseMessageStore<init> complete")
+        traceHandler.traceDebug(TAG, "DatabaseMessageStore<init> complete")
     }
 
     /**
@@ -153,7 +153,7 @@ internal class DatabaseMessageStore
 
         db = mqttDb!!.writableDatabase
 
-        traceHandler!!.traceDebug(TAG, "storeArrived{" + clientHandle + "}, {"
+        traceHandler.traceDebug(TAG, "storeArrived{" + clientHandle + "}, {"
                 + message.toString() + "}")
 
         val payload = message.payload
@@ -226,7 +226,7 @@ internal class DatabaseMessageStore
 
         db = mqttDb!!.writableDatabase
 
-        traceHandler!!.traceDebug(TAG, "discardArrived{" + clientHandle + "}, {"
+        traceHandler.traceDebug(TAG, "discardArrived{" + clientHandle + "}, {"
                 + id + "}")
         val rows: Int
         val selectionArgs = arrayOfNulls<String>(2)
@@ -340,11 +340,11 @@ internal class DatabaseMessageStore
 
         var rows = 0
         if (clientHandle == null) {
-            traceHandler!!.traceDebug(TAG,
+            traceHandler.traceDebug(TAG,
                     "clearArrivedMessages: clearing the table")
             rows = db!!.delete(ARRIVED_MESSAGE_TABLE_NAME, null, null)
         } else {
-            traceHandler!!.traceDebug(TAG,
+            traceHandler.traceDebug(TAG,
                     "clearArrivedMessages: clearing the table of "
                             + clientHandle + " messages")
             rows = db!!.delete(ARRIVED_MESSAGE_TABLE_NAME,

@@ -195,7 +195,7 @@ public class MqttV3Receiver implements MqttCallback{
                                    boolean expectOrdered) throws MqttException, InterruptedException {
         final String methodName = "validateReceipt";
 
-        int expectedMessageNumbers[] = new int[nPublishers];
+        int[] expectedMessageNumbers = new int[nPublishers];
         for (int i = 0; i < nPublishers; i++) {
             expectedMessageNumbers[i] = 0;
         }

@@ -187,10 +187,10 @@ internal class MqttConnection
 
         if (connectOptions!!.isCleanSession) { // if it's a clean session,
             // discard old data
-            service?.messageStore?.clearArrivedMessages(clientHandle ?: return)
+            service.messageStore?.clearArrivedMessages(clientHandle)
         }
 
-        service!!.traceDebug(TAG, "Connecting {$serverURI} as {$clientId}")
+        service.traceDebug(TAG, "Connecting {$serverURI} as {$clientId}")
         val resultBundle = Bundle()
         resultBundle.putString(CALLBACK_ACTIVITY_TOKEN,
                 activityToken)
@@ -286,7 +286,7 @@ internal class MqttConnection
     private fun doAfterConnectSuccess(resultBundle: Bundle) {
         //since the device's cpu can go to sleep, acquire a wakelock and drop it later.
         acquireWakeLock()
-        service!!.callbackToActivity(clientHandle, Status.OK, resultBundle)
+        service.callbackToActivity(clientHandle, Status.OK, resultBundle)
         deliverBacklog()
         setConnectingState(false)
         disconnected = false
@@ -299,7 +299,7 @@ internal class MqttConnection
                 CONNECT_EXTENDED_ACTION)
         resultBundle.putBoolean(CALLBACK_RECONNECT, reconnect)
         resultBundle.putString(CALLBACK_SERVER_URI, serverURI)
-        service!!.callbackToActivity(clientHandle, Status.OK, resultBundle)
+        service.callbackToActivity(clientHandle, Status.OK, resultBundle)
     }
 
     private fun doAfterConnectFail(resultBundle: Bundle) {
@@ -307,7 +307,7 @@ internal class MqttConnection
         acquireWakeLock()
         disconnected = true
         setConnectingState(false)
-        service!!.callbackToActivity(clientHandle, Status.ERROR, resultBundle)
+        service.callbackToActivity(clientHandle, Status.ERROR, resultBundle)
         releaseWakeLock()
     }
 
@@ -317,7 +317,7 @@ internal class MqttConnection
 
         resultBundle.putSerializable(CALLBACK_EXCEPTION, e)
 
-        service!!.callbackToActivity(clientHandle, Status.ERROR, resultBundle)
+        service.callbackToActivity(clientHandle, Status.ERROR, resultBundle)
     }
 
     /**
@@ -326,7 +326,7 @@ internal class MqttConnection
      * have already purged any such messages from our messageStore.
      */
     private fun deliverBacklog() {
-        val backlog = service?.messageStore?.getAllArrivedMessages(clientHandle ?: return) ?: return
+        val backlog = service.messageStore?.getAllArrivedMessages(clientHandle) ?: return
         while (backlog.hasNext()) {
             val msgArrived = backlog.next()
             val resultBundle = messageToBundle(msgArrived.messageId,
@@ -364,7 +364,7 @@ internal class MqttConnection
      *
      */
     fun close() {
-        service!!.traceDebug(TAG, "close()")
+        service.traceDebug(TAG, "close()")
         try {
             if (myClient != null) {
                 myClient!!.close()
@@ -388,7 +388,7 @@ internal class MqttConnection
      */
     fun disconnect(quiesceTimeout: Long, invocationContext: String,
                    activityToken: String) {
-        service!!.traceDebug(TAG, "disconnect()")
+        service.traceDebug(TAG, "disconnect()")
         disconnected = true
         val resultBundle = Bundle()
         resultBundle.putString(CALLBACK_ACTIVITY_TOKEN,
@@ -417,7 +417,7 @@ internal class MqttConnection
 
         if (connectOptions != null && connectOptions!!.isCleanSession) {
             // assume we'll clear the stored messages at this point
-            service.messageStore?.clearArrivedMessages(clientHandle!!)
+            service.messageStore?.clearArrivedMessages(clientHandle)
         }
 
         releaseWakeLock()
@@ -515,7 +515,7 @@ internal class MqttConnection
         } else {
             resultBundle.putString(CALLBACK_ERROR_MESSAGE,
                     NOT_CONNECTED)
-            service!!.traceError(SEND_ACTION, NOT_CONNECTED)
+            service.traceError(SEND_ACTION, NOT_CONNECTED)
             service.callbackToActivity(clientHandle, Status.ERROR, resultBundle)
         }
 
@@ -578,7 +578,7 @@ internal class MqttConnection
             Log.i(TAG, "Client is not connected, so not sending message")
             resultBundle.putString(CALLBACK_ERROR_MESSAGE,
                     NOT_CONNECTED)
-            service!!.traceError(SEND_ACTION, NOT_CONNECTED)
+            service.traceError(SEND_ACTION, NOT_CONNECTED)
             service.callbackToActivity(clientHandle, Status.ERROR, resultBundle)
         }
         return sendToken
@@ -598,7 +598,7 @@ internal class MqttConnection
      */
     fun subscribe(topic: String, qos: Int,
                   invocationContext: String, activityToken: String) {
-        service!!.traceDebug(TAG, "subscribe({" + topic + "}," + qos + ",{"
+        service.traceDebug(TAG, "subscribe({" + topic + "}," + qos + ",{"
                 + invocationContext + "}, {" + activityToken + "}")
         val resultBundle = Bundle()
         resultBundle.putString(CALLBACK_ACTION,
@@ -640,7 +640,7 @@ internal class MqttConnection
      */
     fun subscribe(topic: Array<String>, qos: IntArray,
                   invocationContext: String, activityToken: String) {
-        service!!.traceDebug(TAG, "subscribe({" + Arrays.toString(topic) + "}," + Arrays.toString(qos) + ",{"
+        service.traceDebug(TAG, "subscribe({" + Arrays.toString(topic) + "}," + Arrays.toString(qos) + ",{"
                 + invocationContext + "}, {" + activityToken + "}")
         val resultBundle = Bundle()
         resultBundle.putString(CALLBACK_ACTION,
@@ -669,7 +669,7 @@ internal class MqttConnection
     }
 
     fun subscribe(topicFilters: Array<String>, qos: IntArray, invocationContext: String, activityToken: String, messageListeners: Array<IMqttMessageListener>) {
-        service!!.traceDebug(TAG, "subscribe({" + Arrays.toString(topicFilters) + "}," + Arrays.toString(qos) + ",{"
+        service.traceDebug(TAG, "subscribe({" + Arrays.toString(topicFilters) + "}," + Arrays.toString(qos) + ",{"
                 + invocationContext + "}, {" + activityToken + "}")
         val resultBundle = Bundle()
         resultBundle.putString(CALLBACK_ACTION, SUBSCRIBE_ACTION)
@@ -703,7 +703,7 @@ internal class MqttConnection
      */
     fun unsubscribe(topic: String, invocationContext: String,
                     activityToken: String) {
-        service!!.traceDebug(TAG, "unsubscribe({" + topic + "},{"
+        service.traceDebug(TAG, "unsubscribe({" + topic + "},{"
                 + invocationContext + "}, {" + activityToken + "})")
         val resultBundle = Bundle()
         resultBundle.putString(CALLBACK_ACTION,
@@ -743,7 +743,7 @@ internal class MqttConnection
      */
     fun unsubscribe(topic: Array<String>, invocationContext: String,
                     activityToken: String) {
-        service!!.traceDebug(TAG, "unsubscribe({" + Arrays.toString(topic) + "},{"
+        service.traceDebug(TAG, "unsubscribe({" + Arrays.toString(topic) + "},{"
                 + invocationContext + "}, {" + activityToken + "})")
         val resultBundle = Bundle()
         resultBundle.putString(CALLBACK_ACTION,
@@ -779,7 +779,7 @@ internal class MqttConnection
      * the exeception causing the break in communications
      */
     override fun connectionLost(why: Throwable) {
-        service!!.traceDebug(TAG, "connectionLost(" + why.message + ")")
+        service.traceDebug(TAG, "connectionLost(" + why.message + ")")
         disconnected = true
         try {
             if (!this.connectOptions!!.isAutomaticReconnect) {
@@ -832,7 +832,7 @@ internal class MqttConnection
      */
     override fun deliveryComplete(messageToken: IMqttDeliveryToken) {
 
-        service!!.traceDebug(TAG, "deliveryComplete($messageToken)")
+        service.traceDebug(TAG, "deliveryComplete($messageToken)")
 
         val message = savedSentMessages.remove(messageToken)
         if (message != null) { // If I don't know about the message, it's
@@ -875,7 +875,7 @@ internal class MqttConnection
     @Throws(Exception::class)
     override fun messageArrived(topic: String, message: MqttMessage) {
 
-        service!!.traceDebug(TAG,
+        service.traceDebug(TAG,
                 "messageArrived($topic,{$message})")
 
         val messageId = service.messageStore?.storeArrived(clientHandle,
@@ -915,7 +915,7 @@ internal class MqttConnection
      */
     private fun acquireWakeLock() {
         if (wakelock == null) {
-            val pm = service!!
+            val pm = service
                     .getSystemService(Service.POWER_SERVICE) as PowerManager
             wakelock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                     wakeLockTag)
@@ -945,7 +945,7 @@ internal class MqttConnection
     private open inner class MqttConnectionListener internal constructor(private val resultBundle: Bundle) : IMqttActionListener {
 
         override fun onSuccess(asyncActionToken: IMqttToken) {
-            service!!.callbackToActivity(clientHandle, Status.OK, resultBundle)
+            service.callbackToActivity(clientHandle, Status.OK, resultBundle)
         }
 
         override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
@@ -955,7 +955,7 @@ internal class MqttConnection
             resultBundle.putSerializable(
                     CALLBACK_EXCEPTION, exception)
 
-            service!!.callbackToActivity(clientHandle, Status.ERROR, resultBundle)
+            service.callbackToActivity(clientHandle, Status.ERROR, resultBundle)
         }
     }
 
@@ -981,16 +981,16 @@ internal class MqttConnection
     fun reconnect() {
 
         if (myClient == null) {
-            service!!.traceError(TAG, "Reconnect myClient = null. Will not do reconnect")
+            service.traceError(TAG, "Reconnect myClient = null. Will not do reconnect")
             return
         }
 
         if (isConnecting) {
-            service!!.traceDebug(TAG, "The client is connecting. Reconnect return directly.")
+            service.traceDebug(TAG, "The client is connecting. Reconnect return directly.")
             return
         }
 
-        if (!service!!.isOnline) {
+        if (!service.isOnline) {
             service.traceDebug(TAG,
                     "The network is not reachable. Will not do reconnect")
             return
