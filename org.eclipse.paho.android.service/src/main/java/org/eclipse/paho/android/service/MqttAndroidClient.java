@@ -46,6 +46,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 import org.eclipse.paho.client.mqttv3.MqttToken;
+import org.eclipse.paho.client.mqttv3.internal.ExceptionHelper;
 
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -1724,7 +1725,28 @@ public class MqttAndroidClient extends BroadcastReceiver implements
 			throws MqttException {
 		throw new UnsupportedOperationException();	
 	}
-	
+
+	/**
+	 * Checks if client or service are null, and then if the client is already connected
+	 * If none of the above are true, will attempt a reconnect via doConnect
+	 * @throws MqttException
+	 */
+	public void reconnect() throws MqttException {
+		if (clientHandle == null || mqttService == null){
+			throw ExceptionHelper.createMqttException(MqttException.REASON_CODE_UNEXPECTED_ERROR);
+		}
+		if (isConnected()){
+			throw ExceptionHelper.createMqttException(MqttException.REASON_CODE_CLIENT_CONNECTED);
+		}
+		doConnect();
+	}
+
+	@Override
+	public boolean removeMessage(IMqttDeliveryToken token) throws MqttException {
+		// TODO: Add removal to service, then call to remove here.
+		return false;
+	}
+
 	/**
 	 * Unregister receiver which receives intent from MqttService avoids
 	 * IntentReceiver leaks.
