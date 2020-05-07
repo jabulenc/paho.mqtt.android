@@ -833,32 +833,31 @@ internal class MqttConnection
 
         service.traceDebug(TAG, "deliveryComplete($messageToken)")
 
-        val message = savedSentMessages.remove(messageToken)
-        if (message != null) { // If I don't know about the message, it's
-            // irrelevant
-            val topic = savedTopics.remove(messageToken)
-            val activityToken = savedActivityTokens.remove(messageToken)
-            val invocationContext = savedInvocationContexts
-                    .remove(messageToken)
+        val message = savedSentMessages.remove(messageToken) ?: return
+        // If I don't know about the message, it's
+        // irrelevant
+        val topic = savedTopics.remove(messageToken)
+        val activityToken = savedActivityTokens.remove(messageToken)
+        val invocationContext = savedInvocationContexts
+                .remove(messageToken)
 
-            val resultBundle = messageToBundle(null, topic, message)
-            if (activityToken != null) {
-                resultBundle.putString(CALLBACK_ACTION,
-                        SEND_ACTION)
-                resultBundle.putString(
-                        CALLBACK_ACTIVITY_TOKEN,
-                        activityToken)
-                resultBundle.putString(
-                        CALLBACK_INVOCATION_CONTEXT,
-                        invocationContext)
-
-                service.callbackToActivity(clientHandle, Status.OK,
-                        resultBundle)
-            }
+        val resultBundle = messageToBundle(null, topic, message)
+        if (activityToken != null) {
             resultBundle.putString(CALLBACK_ACTION,
-                    MESSAGE_DELIVERED_ACTION)
-            service.callbackToActivity(clientHandle, Status.OK, resultBundle)
+                    SEND_ACTION)
+            resultBundle.putString(
+                    CALLBACK_ACTIVITY_TOKEN,
+                    activityToken)
+            resultBundle.putString(
+                    CALLBACK_INVOCATION_CONTEXT,
+                    invocationContext)
+
+            service.callbackToActivity(clientHandle, Status.OK,
+                    resultBundle)
         }
+        resultBundle.putString(CALLBACK_ACTION,
+                MESSAGE_DELIVERED_ACTION)
+        service.callbackToActivity(clientHandle, Status.OK, resultBundle)
 
         // this notification will have kept the connection alive but send the previously sechudled ping anyway
     }
