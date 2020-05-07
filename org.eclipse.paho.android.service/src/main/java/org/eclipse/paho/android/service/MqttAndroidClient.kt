@@ -52,6 +52,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.ServiceConnection
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -124,6 +125,7 @@ class MqttAndroidClient
 
     @Volatile
     private var receiverRegistered = false
+
     @Volatile
     private var bindedService = false
 
@@ -141,6 +143,7 @@ class MqttAndroidClient
          * the message has been acknowledged as received .
          */
         AUTO_ACK,
+
         /**
          * When [MqttCallback.messageArrived] returns, the message
          * will not be acknowledged as received, the application will have to make an acknowledgment call
@@ -340,7 +343,11 @@ class MqttAndroidClient
         if (mqttService == null) { // First time - must bind to the service
             val serviceStartIntent = Intent()
             serviceStartIntent.setClassName(myContext!!, SERVICE_NAME)
-            val service = myContext!!.startService(serviceStartIntent)
+            val service = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                myContext?.startForegroundService(serviceStartIntent)
+            } else {
+                myContext?.startService(serviceStartIntent)
+            }
             if (service == null) {
                 val listener = token.actionCallback
                 listener?.onFailure(token, RuntimeException(
@@ -385,8 +392,7 @@ class MqttAndroidClient
 
         val activityToken = storeToken(connectToken)
         try {
-            mqttService!!.connect(clientHandle!!, connectOptions!!, null!!,
-                    activityToken)
+            mqttService!!.connect(clientHandle!!, connectOptions!!, null, activityToken)
         } catch (e: MqttException) {
             val listener = connectToken!!.actionCallback
             listener?.onFailure(connectToken, e)
@@ -414,7 +420,7 @@ class MqttAndroidClient
     override fun disconnect(): IMqttToken {
         val token = MqttTokenAndroid(this, null, null)
         val activityToken = storeToken(token)
-        mqttService!!.disconnect(clientHandle!!, null!!, activityToken)
+        mqttService!!.disconnect(clientHandle!!, null, activityToken)
         return token
     }
 
@@ -443,8 +449,7 @@ class MqttAndroidClient
     override fun disconnect(quiesceTimeout: Long): IMqttToken {
         val token = MqttTokenAndroid(this, null, null)
         val activityToken = storeToken(token)
-        mqttService!!.disconnect(clientHandle!!, quiesceTimeout, null!!,
-                activityToken)
+        mqttService?.disconnect(clientHandle!!, quiesceTimeout, null, activityToken)
         return token
     }
 
@@ -476,7 +481,7 @@ class MqttAndroidClient
         val token = MqttTokenAndroid(this, userContext,
                 callback)
         val activityToken = storeToken(token)
-        mqttService!!.disconnect(clientHandle!!, null!!, activityToken)
+        mqttService!!.disconnect(clientHandle!!, null, activityToken)
         return token
     }
 
@@ -532,8 +537,7 @@ class MqttAndroidClient
         val token = MqttTokenAndroid(this, userContext,
                 callback)
         val activityToken = storeToken(token)
-        mqttService!!.disconnect(clientHandle!!, quiesceTimeout, null!!,
-                activityToken)
+        mqttService!!.disconnect(clientHandle!!, quiesceTimeout, null, activityToken)
         return token
     }
 
@@ -641,7 +645,7 @@ class MqttAndroidClient
                 this, userContext, callback, message)
         val activityToken = storeToken(token)
         val internalToken = mqttService!!.publish(clientHandle!!,
-                topic, payload, qos, retained, null!!, activityToken)
+                topic, payload, qos, retained, null, activityToken)
         token.setDelegate(internalToken)
         return token
     }
@@ -741,7 +745,7 @@ class MqttAndroidClient
                 this, userContext, callback, message)
         val activityToken = storeToken(token)
         val internalToken = mqttService!!.publish(clientHandle!!,
-                topic, message, null!!, activityToken)
+                topic, message, null, activityToken)
         token.setDelegate(internalToken)
         return token
     }
@@ -833,7 +837,7 @@ class MqttAndroidClient
         val token = MqttTokenAndroid(this, userContext,
                 callback, arrayOf(topic))
         val activityToken = storeToken(token)
-        mqttService!!.subscribe(clientHandle!!, topic, qos, null!!, activityToken)
+        mqttService!!.subscribe(clientHandle!!, topic, qos, null, activityToken)
         return token
     }
 
@@ -984,7 +988,7 @@ class MqttAndroidClient
         val token = MqttTokenAndroid(this, userContext,
                 callback, topic)
         val activityToken = storeToken(token)
-        mqttService!!.subscribe(clientHandle!!, topic, qos, null!!, activityToken)
+        mqttService!!.subscribe(clientHandle!!, topic, qos, null, activityToken)
         return token
     }
 
@@ -1084,7 +1088,7 @@ class MqttAndroidClient
     override fun subscribe(topicFilters: Array<String>, qos: IntArray, userContext: Any?, callback: IMqttActionListener?, messageListeners: Array<IMqttMessageListener>): IMqttToken? {
         val token = MqttTokenAndroid(this, userContext, callback, topicFilters)
         val activityToken = storeToken(token)
-        mqttService!!.subscribe(clientHandle!!, topicFilters, qos, null!!, activityToken, messageListeners)
+        mqttService!!.subscribe(clientHandle!!, topicFilters, qos, null, activityToken, messageListeners)
 
         return null
     }
@@ -1151,7 +1155,7 @@ class MqttAndroidClient
         val token = MqttTokenAndroid(this, userContext,
                 callback)
         val activityToken = storeToken(token)
-        mqttService!!.unsubscribe(clientHandle!!, topic, null!!, activityToken)
+        mqttService!!.unsubscribe(clientHandle!!, topic, null, activityToken)
         return token
     }
 
@@ -1201,7 +1205,7 @@ class MqttAndroidClient
         val token = MqttTokenAndroid(this, userContext,
                 callback)
         val activityToken = storeToken(token)
-        mqttService!!.unsubscribe(clientHandle!!, topic, null!!, activityToken)
+        mqttService!!.unsubscribe(clientHandle!!, topic, null, activityToken)
         return token
     }
 

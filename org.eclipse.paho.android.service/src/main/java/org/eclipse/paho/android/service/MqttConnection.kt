@@ -386,8 +386,7 @@ internal class MqttConnection
      * @param activityToken
      * arbitrary string to be passed back to the activity
      */
-    fun disconnect(quiesceTimeout: Long, invocationContext: String,
-                   activityToken: String) {
+    fun disconnect(quiesceTimeout: Long, invocationContext: String?, activityToken: String) {
         service.traceDebug(TAG, "disconnect()")
         disconnected = true
         val resultBundle = Bundle()
@@ -485,7 +484,7 @@ internal class MqttConnection
      * @return token for tracking the operation
      */
     fun publish(topic: String, payload: ByteArray, qos: Int,
-                retained: Boolean, invocationContext: String, activityToken: String): IMqttDeliveryToken? {
+                retained: Boolean, invocationContext: String?, activityToken: String): IMqttDeliveryToken? {
         val resultBundle = Bundle()
         resultBundle.putString(CALLBACK_ACTION,
                 SEND_ACTION)
@@ -537,7 +536,7 @@ internal class MqttConnection
      * @return token for tracking the operation
      */
     fun publish(topic: String, message: MqttMessage,
-                invocationContext: String, activityToken: String): IMqttDeliveryToken? {
+                invocationContext: String?, activityToken: String): IMqttDeliveryToken? {
         val resultBundle = Bundle()
         resultBundle.putString(CALLBACK_ACTION,
                 SEND_ACTION)
@@ -597,7 +596,7 @@ internal class MqttConnection
      * arbitrary identifier to be passed back to the Activity
      */
     fun subscribe(topic: String, qos: Int,
-                  invocationContext: String, activityToken: String) {
+                  invocationContext: String?, activityToken: String) {
         service.traceDebug(TAG, "subscribe({" + topic + "}," + qos + ",{"
                 + invocationContext + "}, {" + activityToken + "}")
         val resultBundle = Bundle()
@@ -639,7 +638,7 @@ internal class MqttConnection
      * arbitrary identifier to be passed back to the Activity
      */
     fun subscribe(topic: Array<String>, qos: IntArray,
-                  invocationContext: String, activityToken: String) {
+                  invocationContext: String?, activityToken: String) {
         service.traceDebug(TAG, "subscribe({" + Arrays.toString(topic) + "}," + Arrays.toString(qos) + ",{"
                 + invocationContext + "}, {" + activityToken + "}")
         val resultBundle = Bundle()
@@ -668,7 +667,7 @@ internal class MqttConnection
         }
     }
 
-    fun subscribe(topicFilters: Array<String>, qos: IntArray, invocationContext: String, activityToken: String, messageListeners: Array<IMqttMessageListener>) {
+    fun subscribe(topicFilters: Array<String>, qos: IntArray, invocationContext: String?, activityToken: String, messageListeners: Array<IMqttMessageListener>) {
         service.traceDebug(TAG, "subscribe({" + Arrays.toString(topicFilters) + "}," + Arrays.toString(qos) + ",{"
                 + invocationContext + "}, {" + activityToken + "}")
         val resultBundle = Bundle()
@@ -701,7 +700,7 @@ internal class MqttConnection
      * @param activityToken
      * arbitrary identifier to be passed back to the Activity
      */
-    fun unsubscribe(topic: String, invocationContext: String,
+    fun unsubscribe(topic: String, invocationContext: String?,
                     activityToken: String) {
         service.traceDebug(TAG, "unsubscribe({" + topic + "},{"
                 + invocationContext + "}, {" + activityToken + "})")
@@ -741,7 +740,7 @@ internal class MqttConnection
      * @param activityToken
      * arbitrary identifier to be passed back to the Activity
      */
-    fun unsubscribe(topic: Array<String>, invocationContext: String,
+    fun unsubscribe(topic: Array<String>, invocationContext: String?,
                     activityToken: String) {
         service.traceDebug(TAG, "unsubscribe({" + Arrays.toString(topic) + "},{"
                 + invocationContext + "}, {" + activityToken + "})")
@@ -903,11 +902,12 @@ internal class MqttConnection
      */
     private fun storeSendDetails(topic: String, msg: MqttMessage,
                                  messageToken: IMqttDeliveryToken,
-                                 invocationContext: String, activityToken: String) {
+                                 invocationContext: String?, activityToken: String) {
         savedTopics[messageToken] = topic
         savedSentMessages[messageToken] = msg
         savedActivityTokens[messageToken] = activityToken
-        savedInvocationContexts[messageToken] = invocationContext
+        // TODO: Is this really okay being null?
+        savedInvocationContexts[messageToken] = invocationContext ?: return
     }
 
     /**
