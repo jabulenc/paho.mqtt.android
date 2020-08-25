@@ -129,7 +129,7 @@ open class MqttAndroidClient(var myContext: Context?, // Connection data
     @Volatile
     private var bindedService = false
 
-    val bufferedMessageCount: Int
+    internal val bufferedMessageCount: Int
         get() = mqttService!!.getBufferedMessageCount(clientHandle!!)
 
     /**
@@ -1093,6 +1093,9 @@ open class MqttAndroidClient(var myContext: Context?, // Connection data
         return null
     }
 
+    override fun getBufferedMessageCount(): Int {
+        return bufferedMessageCount
+    }
 
     /**
      * Requests the server unsubscribe the client from a topic.
@@ -1594,16 +1597,20 @@ open class MqttAndroidClient(var myContext: Context?, // Connection data
      * Sets the DisconnectedBufferOptions for this client
      * @param bufferOpts the DisconnectedBufferOptions
      */
-    fun setBufferOpts(bufferOpts: DisconnectedBufferOptions) {
+    override fun setBufferOpts(bufferOpts: DisconnectedBufferOptions) {
         mqttService!!.setBufferOpts(clientHandle!!, bufferOpts)
     }
 
-    fun getBufferedMessage(bufferIndex: Int): MqttMessage {
+    override fun getBufferedMessage(bufferIndex: Int): MqttMessage {
         return mqttService!!.getBufferedMessage(clientHandle!!, bufferIndex)
     }
 
-    fun deleteBufferedMessage(bufferIndex: Int) {
+    override fun deleteBufferedMessage(bufferIndex: Int) {
         mqttService!!.deleteBufferedMessage(clientHandle!!, bufferIndex)
+    }
+
+    override fun getInFlightMessageCount(): Int {
+        return inFlightMessageCount
     }
 
     /**

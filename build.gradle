@@ -23,8 +23,8 @@ ext{
     compileSdkVersion = 29
     group = 'org.eclipse.paho'
     serviceArchivesBaseName = 'org.eclipse.paho.android.service'
-    serviceVersion = '1.2.4'
-    clientVersion = '1.2.4'
+    serviceVersion = '1.2.0'
+    clientVersion = '1.2.5'
 }
 allprojects {
 
