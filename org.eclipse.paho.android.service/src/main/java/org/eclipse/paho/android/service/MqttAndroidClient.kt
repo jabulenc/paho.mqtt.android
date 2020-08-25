@@ -76,7 +76,6 @@ import android.util.SparseArray
  *  * disconnect
  *
  */
-class MqttAndroidClient
 /**
  * Constructor- create an MqttAndroidClient that can be used to communicate
  * with an MQTT server on android
@@ -96,27 +95,28 @@ class MqttAndroidClient
  * how the application wishes to acknowledge a message has been
  * processed.
  */
-@JvmOverloads constructor(private var myContext: Context?, // Connection data
-                          private val serverURI: String,
-                          private val clientId: String, val persistence: MqttClientPersistence? = null, //The acknowledgment that a message has been processed by the application
-                          private val messageAck: Ack = Ack.AUTO_ACK) : BroadcastReceiver(), IMqttAsyncClient {
+open class MqttAndroidClient(var myContext: Context?, // Connection data
+                             protected val serverURIInternal: String,
+                             protected val clientIdInternal: String,
+                             val persistence: MqttClientPersistence? = null, //The acknowledgment that a message has been processed by the application
+                             val messageAck: Ack = Ack.AUTO_ACK) : BroadcastReceiver(), IMqttAsyncClient {
 
     // Listener for when the service is connected or disconnected
-    private val serviceConnection = MyServiceConnection()
+    internal val serviceConnection = MyServiceConnection()
 
     // The Android Service which will process our mqtt calls
-    private var mqttService: MqttService? = null
+    protected var mqttService: MqttService? = null
 
     // An identifier for the underlying client connection, which we can pass to
     // the service
-    private var clientHandle: String? = null
+    protected var clientHandle: String? = null
 
     // We hold the various tokens in a collection and pass identifiers for them
     // to the service
     private val tokenMap = SparseArray<IMqttToken>()
     private var tokenNumber = 0
-    private var connectOptions: MqttConnectOptions? = null
-    private var connectToken: IMqttToken? = null
+    protected var connectOptions: MqttConnectOptions? = null
+    protected var connectToken: IMqttToken? = null
 
     // The MqttCallback provided by the application
     private var callback: MqttCallback? = null
@@ -124,7 +124,7 @@ class MqttAndroidClient
     private var traceEnabled = false
 
     @Volatile
-    private var receiverRegistered = false
+    protected var receiverRegistered = false
 
     @Volatile
     private var bindedService = false
@@ -155,7 +155,7 @@ class MqttAndroidClient
     /**
      * ServiceConnection to process when we bind to our service
      */
-    private inner class MyServiceConnection : ServiceConnection {
+    internal inner class MyServiceConnection : ServiceConnection {
 
         override fun onServiceConnected(name: ComponentName, binder: IBinder) {
             mqttService = (binder as MqttServiceBinder).service
@@ -191,7 +191,7 @@ class MqttAndroidClient
      * @return the client ID used by this client.
      */
     override fun getClientId(): String {
-        return clientId
+        return clientIdInternal
     }
 
     /**
@@ -205,7 +205,7 @@ class MqttAndroidClient
      * @return the server's address, as a URI String.
      */
     override fun getServerURI(): String {
-        return serverURI
+        return serverURIInternal
     }
 
     /**
@@ -217,7 +217,7 @@ class MqttAndroidClient
     override fun close() {
         if (mqttService != null) {
             if (clientHandle == null) {
-                clientHandle = mqttService!!.getClient(serverURI, clientId, myContext!!.applicationInfo.packageName, persistence!!)
+                clientHandle = mqttService!!.getClient(serverURIInternal, clientIdInternal, myContext!!.applicationInfo.packageName, persistence!!)
             }
             mqttService!!.close(clientHandle!!)
         }
@@ -372,7 +372,7 @@ class MqttAndroidClient
         return token
     }
 
-    private fun registerReceiver(receiver: BroadcastReceiver) {
+    protected fun registerReceiver(receiver: BroadcastReceiver) {
         val filter = IntentFilter()
         filter.addAction(CALLBACK_TO_ACTIVITY)
         LocalBroadcastManager.getInstance(myContext!!).registerReceiver(receiver, filter)
@@ -382,9 +382,9 @@ class MqttAndroidClient
     /**
      * Actually do the mqtt connect operation
      */
-    private fun doConnect() {
+    protected fun doConnect() {
         if (clientHandle == null) {
-            clientHandle = mqttService!!.getClient(serverURI, clientId, myContext!!.applicationInfo.packageName,
+            clientHandle = mqttService!!.getClient(serverURIInternal, clientIdInternal, myContext!!.applicationInfo.packageName,
                     persistence!!)
         }
         mqttService!!.isTraceEnabled = traceEnabled
@@ -1259,7 +1259,7 @@ class MqttAndroidClient
      *
      * @see MqttCallback
      */
-    override fun setCallback(callback: MqttCallback) {
+    override fun setCallback(callback: MqttCallback?) {
         this.callback = callback
 
     }
@@ -1737,7 +1737,7 @@ class MqttAndroidClient
 
         private val BIND_SERVICE_FLAG = 0
 
-        private val pool = Executors.newCachedThreadPool()
+        val pool = Executors.newCachedThreadPool()
     }
 }
 /**
