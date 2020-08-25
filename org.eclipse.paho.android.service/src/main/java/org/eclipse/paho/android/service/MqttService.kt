@@ -211,7 +211,7 @@ import org.eclipse.paho.android.service.CALLBACK_TO_ACTIVITY
 </table> *
  */
 @SuppressLint("Registered")
-class MqttService : Service(), MqttTraceHandler {
+open class MqttService : Service(), MqttTraceHandler {
 
     // callback id for making trace callbacks to the Activity
     // needs to be set by the activity as appropriate
@@ -234,7 +234,7 @@ class MqttService : Service(), MqttTraceHandler {
     internal var messageStore: MessageStore? = null
 
     // An intent receiver to deal with changes in network connectivity
-    private var networkConnectionMonitor: NetworkConnectionIntentReceiver? = null
+    protected var networkConnectionMonitor: NetworkConnectionIntentReceiver? = null
 
     //a receiver to recognise when the user changes the "background data" preference
     // and a flag to track that preference
@@ -783,7 +783,7 @@ class MqttService : Service(), MqttTraceHandler {
    * connection to the server, this allows us to wait until we have a usable
    * data connection again
    */
-    private inner class NetworkConnectionIntentReceiver : BroadcastReceiver() {
+    protected inner class NetworkConnectionIntentReceiver : BroadcastReceiver() {
 
         @SuppressLint("Wakelock", "InvalidWakeLockTag")
         override fun onReceive(context: Context, intent: Intent) {
