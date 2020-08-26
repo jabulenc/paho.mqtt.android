@@ -663,7 +663,7 @@ open class MqttService : Service(), MqttTraceHandler {
     /**
      * @see android.app.Service.onStartCommand
      */
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         // run till explicitly stopped, restart when
         // process restarted
         registerBroadcastReceivers()

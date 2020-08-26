@@ -102,7 +102,7 @@ open class MqttAndroidClient(var myContext: Context?, // Connection data
                              val messageAck: Ack = Ack.AUTO_ACK) : BroadcastReceiver(), IMqttAsyncClient {
 
     // Listener for when the service is connected or disconnected
-    internal val serviceConnection = MyServiceConnection()
+    protected val serviceConnection = MyServiceConnection()
 
     // The Android Service which will process our mqtt calls
     protected var mqttService: MqttService? = null
@@ -155,7 +155,7 @@ open class MqttAndroidClient(var myContext: Context?, // Connection data
     /**
      * ServiceConnection to process when we bind to our service
      */
-    internal inner class MyServiceConnection : ServiceConnection {
+    inner class MyServiceConnection : ServiceConnection {
 
         override fun onServiceConnected(name: ComponentName, binder: IBinder) {
             mqttService = (binder as MqttServiceBinder).service
