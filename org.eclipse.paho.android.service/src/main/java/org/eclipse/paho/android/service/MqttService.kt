@@ -304,7 +304,7 @@ open class MqttService : Service(), MqttTraceHandler {
      * @return a string to be used by the Activity as a "handle" for this
      * MqttConnection
      */
-    fun getClient(serverURI: String, clientId: String, contextId: String, persistence: MqttClientPersistence): String {
+    fun getClient(serverURI: String, clientId: String, contextId: String, persistence: MqttClientPersistence?): String {
         val clientHandle = "$serverURI:$clientId:$contextId"
         if (!connections.containsKey(clientHandle)) {
             val client = MqttConnection(this, serverURI,

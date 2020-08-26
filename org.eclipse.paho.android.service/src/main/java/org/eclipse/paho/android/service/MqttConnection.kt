@@ -100,7 +100,7 @@ internal class MqttConnection
 (// our (parent) service object
         private var service: MqttService, // fields for the connection definition
         var serverURI: String?, var clientId: String?,
-        persistence: MqttClientPersistence, // Client handle, used for callbacks...
+        persistence: MqttClientPersistence? = null, // Client handle, used for callbacks...
         var clientHandle: String) : MqttCallbackExtended {
     private var persistence: MqttClientPersistence? = null
     var connectOptions: MqttConnectOptions? = null
