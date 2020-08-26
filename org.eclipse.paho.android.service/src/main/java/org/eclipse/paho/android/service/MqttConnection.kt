@@ -1103,7 +1103,7 @@ internal class MqttConnection
     companion object {
 
         // Strings for Intents etc..
-        private val TAG = "MqttConnection"
+        const val TAG = "MqttConnection"
         // Error status messages
         private val NOT_CONNECTED = "not connected"
     }

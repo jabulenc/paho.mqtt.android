@@ -59,6 +59,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 
 import android.util.Log
 import android.util.SparseArray
+import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence
 
 /**
  * Enables an android application to communicate with an MQTT server using non-blocking methods.
@@ -384,8 +385,12 @@ open class MqttAndroidClient(val myContext: Context, // Connection data
      */
     protected fun doConnect() {
         if (clientHandle == null) {
-            clientHandle = mqttService?.getClient(serverURIInternal, clientIdInternal, myContext!!.applicationInfo.packageName,
-                    persistence)
+            clientHandle = mqttService?.getClient(
+                    serverURIInternal,
+                    clientIdInternal,
+                    myContext.applicationInfo.packageName,
+                    persistence ?: MqttDefaultFilePersistence(mqttService?.getExternalFilesDir(MqttConnection.TAG)?.absolutePath)
+            )
         }
         mqttService?.isTraceEnabled = traceEnabled
         mqttService?.setTraceCallbackId(clientHandle!!)
