@@ -18,11 +18,12 @@ import org.eclipse.paho.client.mqttv3.IMqttToken
 import org.eclipse.paho.client.mqttv3.MqttException
 import org.eclipse.paho.client.mqttv3.internal.wire.MqttWireMessage
 
+
 /**
- *
- *
- * Implementation of the IMqttToken interface for use from within the
- * MqttAndroidClient implementation
+ * @param client used to pass MqttAndroidClient object
+ * @param userContext used to pass context
+ * @param listener optional listener that will be notified when the action completes. Use null if not required.
+ * @param topics topics to subscribe to, which can include wildcards.
  */
 open class MqttTokenAndroid @JvmOverloads constructor(private val client: MqttAndroidClient,
                                                                private var userContext: Any? = null,
@@ -198,12 +199,4 @@ open class MqttTokenAndroid @JvmOverloads constructor(private val client: MqttAn
     override fun getGrantedQos(): IntArray {
         return delegate?.grantedQos ?: emptyArray<Int>().toIntArray()
     }
-    /**
-     * Constructor for use with subscribe operations
-     *
-     * @param client used to pass MqttAndroidClient object
-     * @param userContext used to pass context
-     * @param listener optional listener that will be notified when the action completes. Use null if not required.
-     * @param topics topics to subscribe to, which can include wildcards.
-     */
 }
