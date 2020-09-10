@@ -176,7 +176,7 @@ internal class MqttConnection
      * arbitrary identifier to be passed back to the Activity
      */
     fun connect(options: MqttConnectOptions?, invocationContext: String?,
-                activityToken: String) {
+                activityToken: String): IMqttToken? {
 
         connectOptions = options
         reconnectActivityToken = activityToken
@@ -219,13 +219,11 @@ internal class MqttConnection
                                 CALLBACK_EXCEPTION, MqttPersistenceException())
                         service.callbackToActivity(clientHandle, Status.ERROR,
                                 resultBundle)
-                        return
                     }
                 }
 
                 // use that to setup MQTT client persistence storage
-                persistence = MqttDefaultFilePersistence(
-                        myDir.absolutePath)
+                persistence = MqttDefaultFilePersistence(myDir?.absolutePath)
             }
 
             val listener = object : MqttConnectionListener(
@@ -263,7 +261,7 @@ internal class MqttConnection
                     service.traceDebug(TAG, "myClient != null and the client is not connected")
                     service.traceDebug(TAG, "Do Real connect!")
                     setConnectingState(true)
-                    myClient!!.connect(connectOptions, invocationContext, listener)
+                    return myClient!!.connect(connectOptions, invocationContext, listener)
                 }
             } else {
                 alarmPingSender = AlarmPingSender(service)
@@ -273,14 +271,15 @@ internal class MqttConnection
 
                 service.traceDebug(TAG, "Do Real connect!")
                 setConnectingState(true)
-                myClient!!.connect(connectOptions, invocationContext, listener)
+                return myClient!!.connect(connectOptions, invocationContext, listener)
             }// if myClient is null, then create a new connection
         } catch (e: Exception) {
             service.traceError(TAG, "Exception occurred attempting to connect: " + e.message)
             setConnectingState(false)
             handleException(resultBundle, e)
+            return null
         }
-
+        return null // if you got here nothing happened.
     }
 
     private fun doAfterConnectSuccess(resultBundle: Bundle) {
@@ -638,7 +637,7 @@ internal class MqttConnection
      * arbitrary identifier to be passed back to the Activity
      */
     fun subscribe(topic: Array<String>, qos: IntArray,
-                  invocationContext: String?, activityToken: String) {
+                  invocationContext: String?, activityToken: String): IMqttToken? {
         service.traceDebug(TAG, "subscribe({" + Arrays.toString(topic) + "}," + Arrays.toString(qos) + ",{"
                 + invocationContext + "}, {" + activityToken + "}")
         val resultBundle = Bundle()
@@ -653,10 +652,11 @@ internal class MqttConnection
         if (myClient != null && myClient!!.isConnected) {
             val listener = MqttConnectionListener(
                     resultBundle)
-            try {
+            return try {
                 myClient!!.subscribe(topic, qos, invocationContext, listener)
             } catch (e: Exception) {
                 handleException(resultBundle, e)
+                null
             }
 
         } else {
@@ -664,6 +664,7 @@ internal class MqttConnection
                     NOT_CONNECTED)
             service.traceError("subscribe", NOT_CONNECTED)
             service.callbackToActivity(clientHandle, Status.ERROR, resultBundle)
+            return null
         }
     }
 
@@ -1034,6 +1035,11 @@ internal class MqttConnection
                         // wakelock and drop it later.
                         service.traceDebug(TAG, "Reconnect Success!")
                         service.traceDebug(TAG, "DeliverBacklog when reconnect.")
+                        try {
+                            resultBundle.putBoolean(DID_CONNECT_HAVE_EXISTING_SESSION_EXTRA, asyncActionToken.sessionPresent)
+                        } catch (e: Exception) {
+                            service.traceError(TAG, "asyncActionToken might not have had a sessionPresent field")
+                        }
                         doAfterConnectSuccess(resultBundle)
                     }
 
@@ -1106,5 +1112,6 @@ internal class MqttConnection
         const val TAG = "MqttConnection"
         // Error status messages
         private val NOT_CONNECTED = "not connected"
+        const val DID_CONNECT_HAVE_EXISTING_SESSION_EXTRA = "well_did_it_have_an_existing_session"
     }
 }
