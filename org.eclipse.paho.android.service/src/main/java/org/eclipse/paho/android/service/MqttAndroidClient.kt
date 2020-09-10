@@ -164,7 +164,9 @@ open class MqttAndroidClient(val myContext: Context, // Connection data
             // now that we have the service available, we can actually
             // connect...
             val connectTokenInternal = doConnect()
-            connectToken = (connectToken as? MqttTokenAndroid)?.setDelegate(doConnect()) ?: connectTokenInternal
+            connectToken = (connectToken as? MqttTokenAndroid)?.apply {
+                setDelegate(doConnect())
+            } ?: connectTokenInternal
         }
 
         override fun onServiceDisconnected(name: ComponentName) {
@@ -1695,7 +1697,10 @@ open class MqttAndroidClient(val myContext: Context, // Connection data
         if (isConnected) {
             throw ExceptionHelper.createMqttException(MqttException.REASON_CODE_CLIENT_CONNECTED.toInt())
         }
-        connectToken = (connectToken as? MqttTokenAndroid)?.setDelegate(doConnect()) ?: connectTokenInternal
+        val connectTokenInternal = doConnect()
+        connectToken = (connectToken as? MqttTokenAndroid)?.apply {
+            setDelegate(doConnect())
+        } ?: connectTokenInternal
     }
 
     @Throws(MqttException::class)
