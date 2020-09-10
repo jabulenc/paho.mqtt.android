@@ -1035,6 +1035,11 @@ internal class MqttConnection
                         // wakelock and drop it later.
                         service.traceDebug(TAG, "Reconnect Success!")
                         service.traceDebug(TAG, "DeliverBacklog when reconnect.")
+                        try {
+                            resultBundle.putBoolean(DID_CONNECT_HAVE_EXISTING_SESSION_EXTRA, asyncActionToken.sessionPresent)
+                        } catch (e: Exception) {
+                            service.traceError(TAG, "asyncActionToken might not have had a sessionPresent field")
+                        }
                         doAfterConnectSuccess(resultBundle)
                     }
 
@@ -1107,5 +1112,6 @@ internal class MqttConnection
         const val TAG = "MqttConnection"
         // Error status messages
         private val NOT_CONNECTED = "not connected"
+        const val DID_CONNECT_HAVE_EXISTING_SESSION_EXTRA = "well_did_it_have_an_existing_session"
     }
 }

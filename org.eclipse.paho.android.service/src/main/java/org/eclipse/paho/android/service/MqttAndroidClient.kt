@@ -1386,9 +1386,10 @@ open class MqttAndroidClient(val myContext: Context, // Connection data
      * @param data
      */
     private fun connectAction(data: Bundle) {
-        val token = connectToken
+        val token = connectToken.apply {
+            (this as? MqttTokenAndroid)?.sessionPresent = data.getBoolean(MqttConnection.DID_CONNECT_HAVE_EXISTING_SESSION_EXTRA, false)
+        }
         removeMqttToken(data)
-
         simpleAction(token, data)
     }
 
