@@ -383,7 +383,7 @@ open class MqttAndroidClient(val myContext: Context, // Connection data
     /**
      * Actually do the mqtt connect operation
      */
-    protected fun doConnect() {
+    public fun doConnect(): IMqttToken? {
         if (clientHandle == null) {
             clientHandle = mqttService?.getClient(
                     serverURIInternal,
@@ -396,13 +396,13 @@ open class MqttAndroidClient(val myContext: Context, // Connection data
         mqttService?.setTraceCallbackId(clientHandle!!)
 
         val activityToken = storeToken(connectToken)
-        try {
+        return try {
             mqttService?.connect(clientHandle!!, connectOptions!!, null, activityToken)
         } catch (e: MqttException) {
             val listener = connectToken!!.actionCallback
             listener?.onFailure(connectToken, e)
+            null
         }
-
     }
 
     /**
@@ -993,8 +993,7 @@ open class MqttAndroidClient(val myContext: Context, // Connection data
         val token = MqttTokenAndroid(this, userContext,
                 callback, topic)
         val activityToken = storeToken(token)
-        mqttService?.subscribe(clientHandle!!, topic, qos, null, activityToken)
-        return token
+        return mqttService?.subscribe(clientHandle!!, topic, qos, null, activityToken) ?: token
     }
 
     /**

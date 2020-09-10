@@ -17,16 +17,6 @@ package org.eclipse.paho.android.service
 
 import java.util.concurrent.ConcurrentHashMap
 
-import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
-import org.eclipse.paho.client.mqttv3.IMqttMessageListener
-import org.eclipse.paho.client.mqttv3.MqttClientPersistence
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions
-import org.eclipse.paho.client.mqttv3.MqttException
-import org.eclipse.paho.client.mqttv3.MqttMessage
-import org.eclipse.paho.client.mqttv3.MqttPersistenceException
-import org.eclipse.paho.client.mqttv3.MqttSecurityException
-
 import android.annotation.SuppressLint
 import android.app.Service
 import android.content.BroadcastReceiver
@@ -45,6 +35,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import org.eclipse.paho.android.service.CALLBACK_CLIENT_HANDLE
 import org.eclipse.paho.android.service.CALLBACK_STATUS
 import org.eclipse.paho.android.service.CALLBACK_TO_ACTIVITY
+import org.eclipse.paho.client.mqttv3.*
 
 /**
  *
@@ -330,10 +321,9 @@ open class MqttService : Service(), MqttTraceHandler {
      */
     @Throws(MqttSecurityException::class, MqttException::class)
     fun connect(clientHandle: String, connectOptions: MqttConnectOptions,
-                invocationContext: String?, activityToken: String) {
+                invocationContext: String?, activityToken: String): IMqttToken? {
         val client = getConnection(clientHandle)
-        client.connect(connectOptions, null, activityToken)
-
+        return client.connect(connectOptions, null, activityToken)
     }
 
     /**
@@ -507,9 +497,9 @@ open class MqttService : Service(), MqttTraceHandler {
      * arbitrary identifier to be passed back to the Activity
      */
     fun subscribe(clientHandle: String, topic: Array<String>, qos: IntArray,
-                  invocationContext: String?, activityToken: String) {
+                  invocationContext: String?, activityToken: String): IMqttToken? {
         val client = getConnection(clientHandle)
-        client.subscribe(topic, qos, invocationContext, activityToken)
+        return client.subscribe(topic, qos, invocationContext, activityToken)
     }
 
     /**
