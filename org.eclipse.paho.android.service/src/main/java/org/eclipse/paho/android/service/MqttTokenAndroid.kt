@@ -36,7 +36,7 @@ open class MqttTokenAndroid @JvmOverloads constructor(private val client: MqttAn
     @Volatile
     private var lastException: MqttException? = null
     private val waitObject = Object()
-    private val topics: Array<String>
+    private val topics: Array<String>? = topics
     private var delegate // specifically for getMessageId
             : IMqttToken? = null
     private var pendingException: MqttException? = null
@@ -155,7 +155,7 @@ open class MqttTokenAndroid @JvmOverloads constructor(private val client: MqttAn
      * @see org.eclipse.paho.client.mqttv3.IMqttToken.getTopics
      */
     override fun getTopics(): Array<String> {
-        return topics
+        return topics ?: emptyArray()
     }
 
     /**
@@ -187,8 +187,8 @@ open class MqttTokenAndroid @JvmOverloads constructor(private val client: MqttAn
         return if (delegate != null) delegate!!.messageId else 0
     }
 
-    override fun getResponse(): MqttWireMessage {
-        return delegate!!.response
+    override fun getResponse(): MqttWireMessage? {
+        return delegate?.response
     }
 
     override fun getSessionPresent(): Boolean {
@@ -206,14 +206,4 @@ open class MqttTokenAndroid @JvmOverloads constructor(private val client: MqttAn
      * @param listener optional listener that will be notified when the action completes. Use null if not required.
      * @param topics topics to subscribe to, which can include wildcards.
      */
-    /**
-     * Standard constructor
-     *
-     * @param client used to pass MqttAndroidClient object
-     * @param userContext used to pass context
-     * @param listener optional listener that will be notified when the action completes. Use null if not required.
-     */
-    init {
-        this.topics = topics!!
-    }
 }
