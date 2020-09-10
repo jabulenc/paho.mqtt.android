@@ -366,7 +366,9 @@ open class MqttAndroidClient(val myContext: Context, // Connection data
             if (!receiverRegistered) registerReceiver(this)
         } else {
             pool.execute {
-                connectToken = token.setDelegate(doConnect())
+                connectToken = token.apply {
+                    setDelegate(doConnect())
+                }
                 //Register receiver to show shoulder tap.
                 if (!receiverRegistered) registerReceiver(this@MqttAndroidClient)
             }
