@@ -163,7 +163,8 @@ open class MqttAndroidClient(val myContext: Context, // Connection data
             bindedService = true
             // now that we have the service available, we can actually
             // connect...
-            doConnect()
+            val connectTokenInternal = doConnect()
+            connectToken = (connectToken as? MqttTokenAndroid)?.setDelegate(doConnect()) ?: connectTokenInternal
         }
 
         override fun onServiceDisconnected(name: ComponentName) {
@@ -363,8 +364,7 @@ open class MqttAndroidClient(val myContext: Context, // Connection data
             if (!receiverRegistered) registerReceiver(this)
         } else {
             pool.execute {
-                doConnect()
-
+                connectToken = token.setDelegate(doConnect())
                 //Register receiver to show shoulder tap.
                 if (!receiverRegistered) registerReceiver(this@MqttAndroidClient)
             }
@@ -1695,7 +1695,7 @@ open class MqttAndroidClient(val myContext: Context, // Connection data
         if (isConnected) {
             throw ExceptionHelper.createMqttException(MqttException.REASON_CODE_CLIENT_CONNECTED.toInt())
         }
-        doConnect()
+        connectToken = (connectToken as? MqttTokenAndroid)?.setDelegate(doConnect()) ?: connectTokenInternal
     }
 
     @Throws(MqttException::class)
