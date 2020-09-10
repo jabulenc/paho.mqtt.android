@@ -165,7 +165,7 @@ open class MqttAndroidClient(val myContext: Context, // Connection data
             // connect...
             val connectTokenInternal = doConnect()
             connectToken = (connectToken as? MqttTokenAndroid)?.apply {
-                setDelegate(doConnect())
+                setDelegate(connectTokenInternal)
             } ?: connectTokenInternal
         }
 
@@ -366,8 +366,9 @@ open class MqttAndroidClient(val myContext: Context, // Connection data
             if (!receiverRegistered) registerReceiver(this)
         } else {
             pool.execute {
+                val connectTokenInternal = doConnect()
                 connectToken = token.apply {
-                    setDelegate(doConnect())
+                    setDelegate(connectTokenInternal)
                 }
                 //Register receiver to show shoulder tap.
                 if (!receiverRegistered) registerReceiver(this@MqttAndroidClient)
@@ -1701,7 +1702,7 @@ open class MqttAndroidClient(val myContext: Context, // Connection data
         }
         val connectTokenInternal = doConnect()
         connectToken = (connectToken as? MqttTokenAndroid)?.apply {
-            setDelegate(doConnect())
+            setDelegate(connectTokenInternal)
         } ?: connectTokenInternal
     }
 
