@@ -24,7 +24,7 @@ import org.eclipse.paho.client.mqttv3.internal.wire.MqttWireMessage
  * Implementation of the IMqttToken interface for use from within the
  * MqttAndroidClient implementation
  */
-internal open class MqttTokenAndroid @JvmOverloads constructor(private val client: MqttAndroidClient,
+open class MqttTokenAndroid @JvmOverloads constructor(private val client: MqttAndroidClient,
                                                                private var userContext: Any? = null,
                                                                private var listener: IMqttActionListener? = null,
                                                                topics: Array<String>? = null) : IMqttToken {
