@@ -54,6 +54,9 @@ const val CALLBACK_TO_ACTIVITY = (MqttService.TAG
 /* Identifiers for extra data on Intents broadcast to the Activity */
 const val CALLBACK_ACTION = MqttService.TAG + ".callbackAction"
 const val CALLBACK_STATUS = MqttService.TAG + ".callbackStatus"
+const val CALLBACK_QoS = MqttService.TAG + ".callbackQoS"
+const val CALLBACK_TOPICS = MqttService.TAG + ".callbackTopics"
+const val CALLBACK_SESSION_PRESENT = MqttService.TAG + ".callbackSessionPresent"
 const val CALLBACK_CLIENT_HANDLE = (MqttService.TAG + "."
         + CLIENT_HANDLE)
 const val CALLBACK_ERROR_MESSAGE = MqttService.TAG + ".errorMessage"
