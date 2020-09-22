@@ -1475,6 +1475,11 @@ open class MqttAndroidClient(val myContext: Context, // Connection data
      */
     private fun subscribeAction(data: Bundle) {
         val token = removeMqttToken(data)
+        (token as? MqttTokenAndroid)?.let {mta ->
+            data.getIntegerArrayList(CALLBACK_QoS)?.let { mta.setGrantedQos(it.toIntArray()) }
+            data.getBoolean(CALLBACK_SESSION_PRESENT)?.let { mta.sessionPresent = it }
+            data.getStringArrayList(CALLBACK_TOPICS)?.let { mta.setTopics(it.toTypedArray()) }
+        }
         simpleAction(token, data)
     }
 
@@ -1579,7 +1584,6 @@ open class MqttAndroidClient(val myContext: Context, // Connection data
      */
     @Synchronized
     private fun removeMqttToken(data: Bundle): IMqttToken? {
-
         val activityToken = data.getString(CALLBACK_ACTIVITY_TOKEN)
         if (activityToken != null) {
             val tokenNumber = Integer.parseInt(activityToken)

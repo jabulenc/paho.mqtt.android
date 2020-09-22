@@ -292,7 +292,7 @@ open class MqttService : Service(), MqttTraceHandler {
                     this.add(it)
                 }
             }
-            dataBundle?.putIntegerArrayList(CALLBACK_SESSION_PRESENT, qosList)
+            dataBundle?.putIntegerArrayList(CALLBACK_QoS, qosList)
             dataBundle?.putStringArrayList(CALLBACK_TOPICS, topicList)
         }
         if (dataBundle != null) {

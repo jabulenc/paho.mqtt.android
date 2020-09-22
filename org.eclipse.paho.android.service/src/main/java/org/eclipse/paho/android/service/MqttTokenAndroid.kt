@@ -37,10 +37,11 @@ open class MqttTokenAndroid @JvmOverloads constructor(private val client: MqttAn
     @Volatile
     private var lastException: MqttException? = null
     private val waitObject = Object()
-    private val topics: Array<String>? = topics
+    private var topics: Array<String>? = topics
     private var delegate // specifically for getMessageId
             : IMqttToken? = null
     private var pendingException: MqttException? = null
+    private var internalQos: IntArray? = null
 
     /**
      * @see org.eclipse.paho.client.mqttv3.IMqttToken.waitForCompletion
@@ -197,6 +198,14 @@ open class MqttTokenAndroid @JvmOverloads constructor(private val client: MqttAn
     }
 
     override fun getGrantedQos(): IntArray {
-        return delegate?.grantedQos ?: emptyArray<Int>().toIntArray()
+        return internalQos ?: delegate?.grantedQos ?: emptyArray<Int>().toIntArray()
+    }
+
+    fun setGrantedQos(qosArr: IntArray?) {
+        internalQos = qosArr
+    }
+
+    fun setTopics(newTopics: Array<String>?) {
+        this.topics = newTopics
     }
 }
