@@ -1389,6 +1389,7 @@ open class MqttAndroidClient(val myContext: Context, // Connection data
         val token = connectToken.apply {
             (this as? MqttTokenAndroid)?.sessionPresent = data.getBoolean(MqttConnection.DID_CONNECT_HAVE_EXISTING_SESSION_EXTRA, false)
         }
+        addTokenStatusToBundle(token, data)
         removeMqttToken(data)
         simpleAction(token, data)
     }
@@ -1425,7 +1426,6 @@ open class MqttAndroidClient(val myContext: Context, // Connection data
 
     private fun connectExtendedAction(data: Bundle) {
         // This is called differently from a normal connect
-
         if (callback is MqttCallbackExtended) {
             val reconnect = data.getBoolean(CALLBACK_RECONNECT, false)
             val serverURI = data.getString(CALLBACK_SERVER_URI)
@@ -1463,8 +1463,8 @@ open class MqttAndroidClient(val myContext: Context, // Connection data
      * @param data
      */
     private fun sendAction(data: Bundle) {
-        val token = getMqttToken(data) // get, don't remove - will
-        // remove on delivery
+        val token = getMqttToken(data) // get, don't remove - will remove on delivery
+        addTokenStatusToBundle(token, data)
         simpleAction(token, data)
     }
 
@@ -1475,6 +1475,7 @@ open class MqttAndroidClient(val myContext: Context, // Connection data
      */
     private fun subscribeAction(data: Bundle) {
         val token = removeMqttToken(data)
+        addTokenStatusToBundle(token, data)
         simpleAction(token, data)
     }
 
@@ -1485,6 +1486,7 @@ open class MqttAndroidClient(val myContext: Context, // Connection data
      */
     private fun unSubscribeAction(data: Bundle) {
         val token = removeMqttToken(data)
+        addTokenStatusToBundle(token, data)
         simpleAction(token, data)
     }
 
@@ -1579,7 +1581,6 @@ open class MqttAndroidClient(val myContext: Context, // Connection data
      */
     @Synchronized
     private fun removeMqttToken(data: Bundle): IMqttToken? {
-
         val activityToken = data.getString(CALLBACK_ACTIVITY_TOKEN)
         if (activityToken != null) {
             val tokenNumber = Integer.parseInt(activityToken)
@@ -1745,6 +1746,14 @@ open class MqttAndroidClient(val myContext: Context, // Connection data
     fun registerResources() {
         if (!receiverRegistered) {
             registerReceiver(this)
+        }
+    }
+
+    fun addTokenStatusToBundle(token: IMqttToken?, data: Bundle){
+        (token as? MqttTokenAndroid)?.let {mta ->
+            data.getIntegerArrayList(CALLBACK_QoS)?.let { mta.setGrantedQos(it.toIntArray()) }
+            data.getBoolean(CALLBACK_SESSION_PRESENT)?.let { mta.sessionPresent = it }
+            data.getStringArrayList(CALLBACK_TOPICS)?.let { mta.setTopics(it.toTypedArray()) }
         }
     }
 

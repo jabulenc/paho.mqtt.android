@@ -945,7 +945,7 @@ internal class MqttConnection
     private open inner class MqttConnectionListener internal constructor(private val resultBundle: Bundle) : IMqttActionListener {
 
         override fun onSuccess(asyncActionToken: IMqttToken) {
-            service.callbackToActivity(clientHandle, Status.OK, resultBundle)
+            service.callbackToActivity(clientHandle, Status.OK, resultBundle, asyncActionToken)
         }
 
         override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {

@@ -36,6 +36,7 @@ import org.eclipse.paho.android.service.CALLBACK_CLIENT_HANDLE
 import org.eclipse.paho.android.service.CALLBACK_STATUS
 import org.eclipse.paho.android.service.CALLBACK_TO_ACTIVITY
 import org.eclipse.paho.client.mqttv3.*
+import java.util.ArrayList
 
 /**
  *
@@ -265,9 +266,11 @@ open class MqttService : Service(), MqttTraceHandler {
      * OK or Error
      * @param dataBundle
      * the data to be passed
+     * @param resultToken an optional [IMqttToken] that will hold important information about state
      */
     internal fun callbackToActivity(clientHandle: String?, status: Status,
-                                    dataBundle: Bundle?) {
+                                    dataBundle: Bundle?,
+                                    resultToken: IMqttToken? = null) {
         // Don't call traceDebug, as it will try to callbackToActivity leading
         // to recursion.
         val callbackIntent = Intent(
@@ -277,6 +280,21 @@ open class MqttService : Service(), MqttTraceHandler {
                     CALLBACK_CLIENT_HANDLE, clientHandle)
         }
         callbackIntent.putExtra(CALLBACK_STATUS, status)
+        resultToken?.let { rt ->
+            dataBundle?.putBoolean(CALLBACK_SESSION_PRESENT, rt.sessionPresent)
+            val qosList = ArrayList<Int>().apply {
+                rt.grantedQos.forEach {
+                    this.add(it)
+                }
+            }
+            val topicList = ArrayList<String>().apply {
+                rt.topics.forEach {
+                    this.add(it)
+                }
+            }
+            dataBundle?.putIntegerArrayList(CALLBACK_QoS, qosList)
+            dataBundle?.putStringArrayList(CALLBACK_TOPICS, topicList)
+        }
         if (dataBundle != null) {
             callbackIntent.putExtras(dataBundle)
         }

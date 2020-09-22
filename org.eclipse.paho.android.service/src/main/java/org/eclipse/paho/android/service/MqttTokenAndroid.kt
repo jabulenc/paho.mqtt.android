@@ -12,6 +12,7 @@
  */
 package org.eclipse.paho.android.service
 
+import android.util.Log
 import org.eclipse.paho.client.mqttv3.IMqttActionListener
 import org.eclipse.paho.client.mqttv3.IMqttAsyncClient
 import org.eclipse.paho.client.mqttv3.IMqttToken
@@ -29,7 +30,7 @@ open class MqttTokenAndroid @JvmOverloads constructor(private val client: MqttAn
                                                                private var userContext: Any? = null,
                                                                private var listener: IMqttActionListener? = null,
                                                                topics: Array<String>? = null) : IMqttToken {
-
+    private val TAG = "Mqtt|TokenAndr"
     @Volatile
     private var isComplete = false
     @Volatile
@@ -37,10 +38,11 @@ open class MqttTokenAndroid @JvmOverloads constructor(private val client: MqttAn
     @Volatile
     private var lastException: MqttException? = null
     private val waitObject = Object()
-    private val topics: Array<String>? = topics
+    private var topics: Array<String>? = topics
     private var delegate // specifically for getMessageId
             : IMqttToken? = null
     private var pendingException: MqttException? = null
+    private var internalQos: IntArray? = null
 
     /**
      * @see org.eclipse.paho.client.mqttv3.IMqttToken.waitForCompletion
@@ -197,6 +199,22 @@ open class MqttTokenAndroid @JvmOverloads constructor(private val client: MqttAn
     }
 
     override fun getGrantedQos(): IntArray {
-        return delegate?.grantedQos ?: emptyArray<Int>().toIntArray()
+        return internalQos ?: delegate?.grantedQos ?: emptyArray<Int>().toIntArray()
+    }
+
+    fun setGrantedQos(qosArr: IntArray?) {
+        internalQos = qosArr
+    }
+
+    fun setTopics(newTopics: Array<String>?) {
+        this.topics = newTopics
+    }
+
+    fun getTopicToQosMap(): Map<String, Int>? {
+        if (topics?.size != null && grantedQos.isNotEmpty() && topics?.size != grantedQos.size) {
+            Log.e("TAG", "Topics size and qos size don't match. Something went wrong.")
+            return null
+        }
+        return topics?.zip(grantedQos.toTypedArray())?.toMap()
     }
 }
